@@ -4,7 +4,7 @@ import { VscSearch } from 'react-icons/vsc'
 
 function LeftPanelHeader() {
   return (
-    <div className='bg-gray-800 text-white w-full  p-2 grid grid-flow-row justify-center  rounded-tl-xl'>
+    <div className='bg-gray-800 text-white w-full  p-2 grid grid-flow-row justify-center gap-2 rounded-tl-xl'>
         <div className='flex justify-between items-center'>
             <h1 className='text-2xl'>Chats</h1>
             <AiOutlineEdit size={20}/>
