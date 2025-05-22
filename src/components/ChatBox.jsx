@@ -2,11 +2,13 @@ import React from 'react'
 import { useContext } from 'react';
 import { FaPen } from 'react-icons/fa'
 import { UiContext } from '../Contexts/UiContext'
+import FriendPanel from './FriendPanel';
 
 export default function ChatBox() {
-  const {mobileMenu} = useContext(UiContext);
+  const {mobileMenu,friendPanel} = useContext(UiContext);
   return (
-    <div className='bg-gray-800 h-full w-full p-2 text-gray-600'>
+    <div className='bg-gray-800 h-full w-full text-gray-600'>
+      {friendPanel && <FriendPanel/>}
      <div className='h-full w-full flex flex-col items-center justify-center gap-5'>
         <div className='text-6xl'>
            <FaPen size={100}/>
@@ -17,6 +19,7 @@ export default function ChatBox() {
 )}
         </div>
      </div>
+
       
     </div>
   )
