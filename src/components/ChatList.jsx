@@ -3,7 +3,7 @@ import Chat from './Chat'
 
 function ChatList() {
   return (
-    <div className="min-h-full p-2 flex flex-col gap-2  overflow-scroll no-scrollbar ">
+    <div className="h-full p-2 flex flex-col gap-2  overflow-scroll no-scrollbar ">
         <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/> <Chat/>
 
     </div>
