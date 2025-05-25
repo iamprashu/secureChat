@@ -13,7 +13,7 @@ function App() {
   const {mobileMenu,setMobileMenu,friendPanel,setFriendPanel} = useContext(UiContext);
 
   return (
-    <div className='bg-gray-800 h-screen flex flex-col overflow-hidden'>
+    <div className='bg-gray-900 h-screen flex flex-col overflow-hidden'>
       <AppHeader/>
       <div className='flex h-screen'>
           <OuterPanel/>
