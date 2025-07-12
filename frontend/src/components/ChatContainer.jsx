@@ -47,14 +47,17 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-white/5 to-white/10 min-h-0">
-      <ChatHeader />
-      <div className="flex-1 min-h-0 flex flex-col">
+    <div className="h-full flex flex-col bg-gradient-to-br from-white/5 to-white/10">
+      <div className="flex-shrink-0">
+        <ChatHeader />
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-6 space-y-4"
+          className="h-full overflow-y-auto overflow-x-hidden p-6 space-y-4 no-scrollbar"
         >
           <AnimatePresence>
             {messages.map((message, index) => (
@@ -76,11 +79,11 @@ const ChatContainer = () => {
               >
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className={`max-w-[60%] lg:max-w-[50%] break-words whitespace-pre-wrap overflow-hidden min-w-0 ${
+                  className={`max-w-[75%] sm:max-w-[70%] md:max-w-[65%] lg:max-w-[55%] break-words whitespace-pre-wrap overflow-hidden min-w-0 ${
                     message.senderId === authUser._id
                       ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
                       : "bg-white/10 backdrop-blur-sm text-white border border-white/20"
-                  } rounded-2xl p-4 shadow-lg`}
+                  } rounded-2xl p-3 sm:p-4 shadow-lg`}
                   style={{ wordBreak: "break-word" }}
                 >
                   {message.image && (
@@ -120,6 +123,7 @@ const ChatContainer = () => {
           <div ref={messageEndRef} />
         </motion.div>
       </div>
+
       <div className="flex-shrink-0">
         <MessageInput />
       </div>
