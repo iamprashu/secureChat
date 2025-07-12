@@ -1,28 +1,37 @@
+import { motion } from "framer-motion";
+
 const MessageSkeleton = () => {
-  // Create an array of 6 items for skeleton messages
-  const skeletonMessages = Array(6).fill(null);
+  const skeletonMessages = Array.from({ length: 6 }, (_, i) => i);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {skeletonMessages.map((_, idx) => (
-        <div
-          key={idx}
-          className={`chat ${idx % 2 === 0 ? "chat-start" : "chat-end"}`}
+    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      {skeletonMessages.map((_, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: index * 0.1,
+            duration: 0.3,
+          }}
+          className={`flex ${
+            index % 2 === 0 ? "justify-start" : "justify-end"
+          }`}
         >
-          <div className="chat-image avatar">
-            <div className="size-10 rounded-full">
-              <div className="skeleton w-full h-full rounded-full" />
+          <div
+            className={`max-w-[70%] lg:max-w-[60%] rounded-2xl p-4 shadow-lg ${
+              index % 2 === 0
+                ? "bg-white/10 backdrop-blur-sm border border-white/20"
+                : "bg-gradient-to-r from-purple-500/20 to-pink-500/20"
+            }`}
+          >
+            <div className="space-y-3">
+              <div className="h-4 bg-white/20 rounded animate-pulse"></div>
+              <div className="h-4 bg-white/20 rounded animate-pulse w-3/4"></div>
+              <div className="h-3 bg-white/10 rounded animate-pulse w-1/2"></div>
             </div>
           </div>
-
-          <div className="chat-header mb-1">
-            <div className="skeleton h-4 w-16" />
-          </div>
-
-          <div className="chat-bubble bg-transparent p-0">
-            <div className="skeleton h-16 w-[200px]" />
-          </div>
-        </div>
+        </motion.div>
       ))}
     </div>
   );
