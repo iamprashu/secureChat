@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const NoChatSelected = () => {
   return (
-    <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-gradient-to-br from-white/5 to-white/10">
+    <div className="w-full h-full flex flex-1 flex-col items-center justify-center p-16 bg-gradient-to-br from-white/5 to-white/10">
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}

@@ -52,7 +52,7 @@ const MessageInput = () => {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="p-6 bg-white/5 backdrop-blur-sm border-t border-white/10 absolute bottom-0 w-full"
+      className="p-3 sm:p-6 bg-white/5 backdrop-blur-sm border-t border-white/10 sticky bottom-0 w-full"
     >
       <AnimatePresence>
         {imagePreview && (
