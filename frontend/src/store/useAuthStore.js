@@ -113,7 +113,6 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/sync-clerk", clerkData);
       set({ authUser: res.data });
       get().connectSocket();
-      // After syncing, check auth to ensure JWT token is properly set
       await get().checkAuth();
     } catch (error) {
       console.log("Error syncing Clerk user:", error);
