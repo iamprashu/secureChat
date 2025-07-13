@@ -7,58 +7,48 @@ import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useThemeStore } from "./store/useThemeStore";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ClerkProvider, useUser, useAuth } from "@clerk/clerk-react";
 import { Loader } from "lucide-react";
-import { Toaster } from "react-hot-toast";
-import { motion } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore";
 
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const VITE_CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const AppContent = () => {
   const { theme } = useThemeStore();
   const { user, isLoaded } = useUser();
-  const { isSignedIn } = useAuth();
-  const { syncClerkUser, authUser } = useAuthStore();
-  const [isSyncing, setIsSyncing] = useState(false);
+  const { isSignedIn, getToken } = useAuth();
+  const { syncClerkUser, authUser, isSyncing } = useAuthStore();
 
   useEffect(() => {
     const handleClerkSync = async () => {
-      if (isLoaded && isSignedIn && user && !authUser) {
-        setIsSyncing(true);
+      if (!isLoaded || !isSignedIn || !user) {
+        console.log("Early return - conditions not met");
+        return;
+      }
+
+      if (!authUser && !isSyncing) {
         try {
-          await syncClerkUser({
-            clerkUserId: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
-            fullName: user.fullName,
-            profilePic: user.imageUrl,
-          });
+          await syncClerkUser(getToken);
         } catch (error) {
           console.error("Error syncing Clerk user:", error);
-        } finally {
-          setIsSyncing(false);
         }
+      } else {
+        toast.success("Welcome back!");
       }
     };
 
     handleClerkSync();
-  }, [isLoaded, isSignedIn, user, syncClerkUser, authUser]);
+  }, [isLoaded, isSignedIn, user, authUser]);
 
-  if (!isLoaded || isSyncing) {
+  if (!isLoaded || isSyncing || (isSignedIn && !authUser)) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-      >
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="animate-spin">
           <Loader className="size-10 text-white" />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   }
 
@@ -69,7 +59,9 @@ const AppContent = () => {
       <Routes>
         <Route
           path="/"
-          element={isSignedIn ? <HomePage /> : <Navigate to="/login" />}
+          element={
+            isSignedIn && authUser ? <HomePage /> : <Navigate to="/login" />
+          }
         />
         <Route
           path="/signup"
@@ -81,11 +73,15 @@ const AppContent = () => {
         />
         <Route
           path="/settings"
-          element={isSignedIn ? <SettingsPage /> : <Navigate to="/login" />}
+          element={
+            isSignedIn && authUser ? <SettingsPage /> : <Navigate to="/login" />
+          }
         />
         <Route
           path="/profile"
-          element={isSignedIn ? <ProfilePage /> : <Navigate to="/login" />}
+          element={
+            isSignedIn && authUser ? <ProfilePage /> : <Navigate to="/login" />
+          }
         />
       </Routes>
 
@@ -96,7 +92,7 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={VITE_CLERK_PUBLISHABLE_KEY}>
       <AppContent />
     </ClerkProvider>
   );

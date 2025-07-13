@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useAuth } from "@clerk/clerk-react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users, Shield, Sparkles, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,12 +10,13 @@ const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
   const { onlineUsers } = useAuthStore();
+  const { getToken } = useAuth();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    getUsers(getToken);
+  }, [getUsers, getToken]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))

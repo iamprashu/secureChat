@@ -4,8 +4,8 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
+import { useAuth } from "@clerk/clerk-react";
 import { formatMessageTime } from "../lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
 const ChatContainer = () => {
   const {
@@ -17,15 +17,17 @@ const ChatContainer = () => {
     unsubscribeFromMessages,
   } = useChatStore();
   const { authUser } = useAuthStore();
+  const { getToken } = useAuth();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
-    getMessages(selectedUser._id);
+    getMessages(selectedUser._id, getToken);
     subscribeToMessages();
     return () => unsubscribeFromMessages();
   }, [
     selectedUser._id,
     getMessages,
+    getToken,
     subscribeToMessages,
     unsubscribeFromMessages,
   ]);
@@ -53,75 +55,64 @@ const ChatContainer = () => {
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-full overflow-y-auto overflow-x-hidden p-6 space-y-4 no-scrollbar"
-        >
-          <AnimatePresence>
-            {messages.map((message, index) => (
-              <motion.div
-                key={message._id}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  delay: index * 0.1,
-                  duration: 0.3,
-                  type: "spring",
-                  stiffness: 100,
-                }}
-                className={`flex min-w-0 ${
-                  message.senderId === authUser._id
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className={`max-w-[75%] sm:max-w-[70%] md:max-w-[65%] lg:max-w-[55%] break-words whitespace-pre-wrap overflow-hidden min-w-0 ${
+        <div className="h-full overflow-y-auto overflow-x-hidden p-6 space-y-4 no-scrollbar">
+          {messages && messages.length > 0 ? (
+            messages.map((message) => {
+              return (
+                <div
+                  key={message._id}
+                  className={`flex min-w-0 ${
                     message.senderId === authUser._id
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                      : "bg-white/10 backdrop-blur-sm text-white border border-white/20"
-                  } rounded-2xl p-3 sm:p-4 shadow-lg`}
-                  style={{ wordBreak: "break-word" }}
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
                 >
-                  {message.image && (
-                    <motion.img
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      src={message.image}
-                      alt="Attachment"
-                      className="rounded-xl mb-3 max-w-full h-auto"
-                    />
-                  )}
-                  {message.text && (
-                    <p
-                      className="break-words whitespace-pre-wrap text-sm leading-relaxed overflow-hidden"
-                      style={{ wordBreak: "break-word" }}
-                    >
-                      {message.text}
-                    </p>
-                  )}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className={`text-xs mt-2 ${
+                  <div
+                    className={`max-w-[75%] sm:max-w-[70%] md:max-w-[65%] lg:max-w-[55%] break-words whitespace-pre-wrap overflow-hidden min-w-0 ${
                       message.senderId === authUser._id
-                        ? "text-white/70"
-                        : "text-white/50"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                        : "bg-white/10 backdrop-blur-sm text-white border border-white/20"
+                    } rounded-bl-2xl rounded-tr-2xl p-3 sm:p-3 shadow-lg ${
+                      message.isOptimistic ? "opacity-80" : ""
                     }`}
+                    style={{ wordBreak: "break-word" }}
                   >
-                    {formatMessageTime(message.createdAt)}
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                    {message.image && (
+                      <img
+                        src={message.image}
+                        alt="Attachment"
+                        className="rounded-xl mb-3 max-w-full h-auto"
+                      />
+                    )}
+
+                    {message.text && (
+                      <p
+                        className="break-words whitespace-pre-wrap text-sm md:text-xl leading-relaxed overflow-hidden"
+                        style={{ wordBreak: "break-word" }}
+                      >
+                        {message.text}
+                      </p>
+                    )}
+                    <div
+                      className={`text-xs mt-2 ${
+                        message.senderId === authUser._id
+                          ? "text-white/70"
+                          : "text-white/50"
+                      }`}
+                    >
+                      {formatMessageTime(message.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex items-center justify-center h-full text-white/50">
+              No messages yet
+            </div>
+          )}
           <div ref={messageEndRef} />
-        </motion.div>
+        </div>
       </div>
 
       <div className="flex-shrink-0">

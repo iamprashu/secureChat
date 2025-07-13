@@ -1,19 +1,11 @@
-import { motion } from "framer-motion";
-
 const MessageSkeleton = () => {
   const skeletonMessages = Array.from({ length: 6 }, (_, i) => i);
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-4">
       {skeletonMessages.map((_, index) => (
-        <motion.div
+        <div
           key={index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            delay: index * 0.1,
-            duration: 0.3,
-          }}
           className={`flex ${
             index % 2 === 0 ? "justify-start" : "justify-end"
           }`}
@@ -31,7 +23,7 @@ const MessageSkeleton = () => {
               <div className="h-3 bg-white/10 rounded animate-pulse w-1/2"></div>
             </div>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
