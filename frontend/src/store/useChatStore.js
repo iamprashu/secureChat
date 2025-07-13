@@ -10,10 +10,16 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
 
-  getUsers: async () => {
+  getUsers: async (getToken) => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/messages/users");
+      const token = await getToken({ template: "demoT" });
+
+      const res = await axiosInstance.get("/messages/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -22,10 +28,16 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getMessages: async (userId) => {
+  getMessages: async (userId, getToken) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/messages/${userId}`);
+      const token = await getToken({ template: "demoT" });
+
+      const res = await axiosInstance.get(`/messages/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       set({ messages: res.data });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -33,12 +45,60 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
-  sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+
+  sendMessage: async (messageData, getToken) => {
+    const { selectedUser } = get();
+    const { authUser } = useAuthStore.getState();
+
+    console.log("Sending message:", messageData);
+
+    const optimisticMessage = {
+      _id: `temp_${Date.now()}`,
+      senderId: authUser._id,
+      receiverId: selectedUser._id,
+      text: messageData.text,
+      image: messageData.image,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true,
+    };
+
+    console.log("Adding optimistic message:", optimisticMessage);
+
+    set((state) => {
+      console.log("Current messages before optimistic:", state.messages.length);
+      return {
+        messages: [...state.messages, optimisticMessage],
+      };
+    });
+
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      const token = await getToken({ template: "demoT" });
+
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id}`,
+        messageData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Server response:", res.data);
+
+      set((state) => {
+        console.log("Replacing optimistic message");
+        return {
+          messages: state.messages.map((msg) =>
+            msg.isOptimistic ? res.data : msg
+          ),
+        };
+      });
     } catch (error) {
+      console.error("Error sending message:", error);
+      set((state) => ({
+        messages: state.messages.filter((msg) => !msg.isOptimistic),
+      }));
       toast.error(error.response.data.message);
     }
   },
@@ -50,12 +110,51 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
+      console.log("Received new message via socket:", newMessage);
+      const { messages } = get();
+      const { authUser } = useAuthStore.getState();
 
-      set({
-        messages: [...get().messages, newMessage],
-      });
+      const isMessageForCurrentChat =
+        (newMessage.senderId === selectedUser._id &&
+          newMessage.receiverId === authUser._id) ||
+        (newMessage.senderId === authUser._id &&
+          newMessage.receiverId === selectedUser._id);
+
+      if (!isMessageForCurrentChat) {
+        console.log("Message not for current chat, ignoring");
+        return;
+      }
+
+      const messageExists = messages.some((msg) => msg._id === newMessage._id);
+      if (messageExists) {
+        console.log("Message already exists, ignoring");
+        return;
+      }
+
+      const optimisticMessageExists = messages.some(
+        (msg) =>
+          msg.isOptimistic &&
+          msg.senderId === newMessage.senderId &&
+          msg.text === newMessage.text
+      );
+
+      if (optimisticMessageExists) {
+        console.log("Replacing optimistic message with real message");
+        set((state) => ({
+          messages: state.messages.map((msg) =>
+            msg.isOptimistic &&
+            msg.senderId === newMessage.senderId &&
+            msg.text === newMessage.text
+              ? newMessage
+              : msg
+          ),
+        }));
+      } else {
+        console.log("Adding new message to state");
+        set((state) => ({
+          messages: [...state.messages, newMessage],
+        }));
+      }
     });
   },
 

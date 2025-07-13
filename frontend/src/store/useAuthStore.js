@@ -5,86 +5,78 @@ import { io } from "socket.io-client";
 
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? `${
-        import.meta.env.VITE_BACKEND_API ||
-        `http://${window.location.hostname}:3000`
-      }`
-    : "/";
+    ? `http://${window.location.hostname}:3000`
+    : import.meta.env.VITE_API_URL || window.location.origin;
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
-  isSigningUp: false,
-  isLoggingIn: false,
-  isUpdatingProfile: false,
-  isCheckingAuth: true,
+  isSyncing: false,
   onlineUsers: [],
   socket: null,
 
-  checkAuth: async () => {
+  syncClerkUser: async (getToken) => {
+    set({ isSyncing: true });
     try {
-      const res = await axiosInstance.get("/auth/check");
+      const token = await getToken({ template: "demoT" });
 
+      const res = await axiosInstance.post(
+        "/auth/sync-clerk",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Sync response:", res.data);
+      set({ authUser: res.data });
+      get().connectSocket();
+      toast.success("User synced successfully");
+    } catch (error) {
+      console.error("Error syncing Clerk user:", error);
+      toast.error("Failed to sync user");
+    } finally {
+      set({ isSyncing: false });
+    }
+  },
+
+  checkAuth: async (getToken) => {
+    try {
+      const token = await getToken({ template: "demoT" });
+
+      const res = await axiosInstance.get("/auth/check", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth:", error);
       set({ authUser: null });
-    } finally {
-      set({ isCheckingAuth: false });
     }
   },
 
-  signup: async (data) => {
-    set({ isSigningUp: true });
-    try {
-      const res = await axiosInstance.post("/auth/signup", data);
-      set({ authUser: res.data });
-      toast.success("Account created successfully");
-      get().connectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isSigningUp: false });
-    }
+  logout: () => {
+    set({ authUser: null });
+    get().disconnectSocket();
+    toast.success("Logged out successfully");
   },
 
-  login: async (data) => {
-    set({ isLoggingIn: true });
+  updateProfile: async (data, getToken) => {
     try {
-      const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data });
-      toast.success("Logged in successfully");
+      const token = await getToken({ template: "demoT" });
 
-      get().connectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isLoggingIn: false });
-    }
-  },
-
-  logout: async () => {
-    try {
-      await axiosInstance.post("/auth/logout");
-      set({ authUser: null });
-      toast.success("Logged out successfully");
-      get().disconnectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    }
-  },
-
-  updateProfile: async (data) => {
-    set({ isUpdatingProfile: true });
-    try {
-      const res = await axiosInstance.put("/auth/update-profile", data);
+      const res = await axiosInstance.put("/auth/update-profile", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
     } catch (error) {
       console.log("error in update profile:", error);
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isUpdatingProfile: false });
+      toast.error(error.response?.data?.message || "Failed to update profile");
     }
   },
 
@@ -105,17 +97,10 @@ export const useAuthStore = create((set, get) => ({
       set({ onlineUsers: userIds });
     });
   },
+
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
-  syncClerkUser: async (clerkData) => {
-    try {
-      const res = await axiosInstance.post("/auth/sync-clerk", clerkData);
-      set({ authUser: res.data });
-      get().connectSocket();
-      await get().checkAuth();
-    } catch (error) {
-      console.log("Error syncing Clerk user:", error);
-    }
-  },
+
+  setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
