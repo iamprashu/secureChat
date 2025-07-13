@@ -4,7 +4,7 @@ export const axiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "development"
       ? `http://${window.location.hostname}:3000/api`
-      : "/api",
+      : "https://securechat-backend-qgtd.onrender.com/api",
 });
 
 axiosInstance.interceptors.response.use(

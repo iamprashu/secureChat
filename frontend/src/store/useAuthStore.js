@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 const BASE_URL =
   import.meta.env.MODE === "development"
     ? `http://${window.location.hostname}:3000`
-    : window.location.origin;
+    : "https://securechat-backend-qgtd.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
