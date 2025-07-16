@@ -1,8 +1,7 @@
-import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
+import LandingPage from "./pages/LandingPage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
-import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -54,12 +53,10 @@ const AppContent = () => {
 
   return (
     <div data-theme={theme}>
-      <Navbar />
-
       <Routes>
         <Route
           path="/"
-          element={isSignedIn && authUser ? <HomePage /> : <Navigate to="/" />}
+          element={isSignedIn && authUser ? <HomePage /> : <LandingPage />}
         />
         <Route
           path="/signup"
@@ -69,7 +66,8 @@ const AppContent = () => {
           path="/login"
           element={!isSignedIn ? <LoginPage /> : <Navigate to="/" />}
         />
-        <Route path="/login/sso-callback" element={<Navigate to="/" />} />{" "}
+        <Route path="/login/sso-callback" element={<Navigate to="/" />} />
+
         <Route
           path="/profile"
           element={
@@ -77,7 +75,6 @@ const AppContent = () => {
           }
         />
       </Routes>
-
       <Toaster />
     </div>
   );
