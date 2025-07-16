@@ -71,6 +71,8 @@ const AppContent = () => {
           path="/login"
           element={!isSignedIn ? <LoginPage /> : <Navigate to="/" />}
         />
+
+        <Route path="/login/sso-callback" element={<Navigate to="/signup" />} />
 {/*         <Route
           path="/settings"
           element={
