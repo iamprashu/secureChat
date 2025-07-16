@@ -59,9 +59,7 @@ const AppContent = () => {
       <Routes>
         <Route
           path="/"
-          element={
-            isSignedIn && authUser ? <HomePage /> : <Navigate to="/login" />
-          }
+          element={isSignedIn && authUser ? <HomePage /> : <Navigate to="/" />}
         />
         <Route
           path="/signup"
@@ -71,22 +69,11 @@ const AppContent = () => {
           path="/login"
           element={!isSignedIn ? <LoginPage /> : <Navigate to="/" />}
         />
-
-        <Route path="/login/sso-callback" element={<Navigate to="/signup" />} />
-{/*         <Route
-          path="/settings"
-          element={
-            isSignedIn && authUser ? (
-              <SettingsPage />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        /> */}
+        <Route path="/login/sso-callback" element={<Navigate to="/" />} />{" "}
         <Route
           path="/profile"
           element={
-            isSignedIn && authUser ? <ProfilePage /> : <Navigate to="/login" />
+            isSignedIn && authUser ? <ProfilePage /> : <Navigate to="/" />
           }
         />
       </Routes>
