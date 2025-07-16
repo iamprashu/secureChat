@@ -24,7 +24,6 @@ const AppContent = () => {
   useEffect(() => {
     const handleClerkSync = async () => {
       if (!isLoaded || !isSignedIn || !user) {
-        console.log("Early return - conditions not met");
         return;
       }
 

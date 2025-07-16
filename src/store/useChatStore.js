@@ -111,13 +111,11 @@ export const useChatStore = create((set, get) => ({
           newMessage.receiverId === selectedUser._id);
 
       if (!isMessageForCurrentChat) {
-        console.log("Message not for current chat, ignoring");
         return;
       }
 
       const messageExists = messages.some((msg) => msg._id === newMessage._id);
       if (messageExists) {
-        console.log("Message already exists, ignoring");
         return;
       }
 
@@ -139,7 +137,6 @@ export const useChatStore = create((set, get) => ({
           ),
         }));
       } else {
-        console.log("Adding new message to state");
         set((state) => ({
           messages: [...state.messages, newMessage],
         }));
