@@ -50,8 +50,6 @@ export const useChatStore = create((set, get) => ({
     const { selectedUser } = get();
     const { authUser } = useAuthStore.getState();
 
-    console.log("Sending message:", messageData);
-
     const optimisticMessage = {
       _id: `temp_${Date.now()}`,
       senderId: authUser._id,
@@ -62,10 +60,7 @@ export const useChatStore = create((set, get) => ({
       isOptimistic: true,
     };
 
-    console.log("Adding optimistic message:", optimisticMessage);
-
     set((state) => {
-      console.log("Current messages before optimistic:", state.messages.length);
       return {
         messages: [...state.messages, optimisticMessage],
       };
@@ -84,10 +79,7 @@ export const useChatStore = create((set, get) => ({
         }
       );
 
-      console.log("Server response:", res.data);
-
       set((state) => {
-        console.log("Replacing optimistic message");
         return {
           messages: state.messages.map((msg) =>
             msg.isOptimistic ? res.data : msg
@@ -95,7 +87,6 @@ export const useChatStore = create((set, get) => ({
         };
       });
     } catch (error) {
-      console.error("Error sending message:", error);
       set((state) => ({
         messages: state.messages.filter((msg) => !msg.isOptimistic),
       }));
@@ -110,7 +101,6 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
 
     socket.on("newMessage", (newMessage) => {
-      console.log("Received new message via socket:", newMessage);
       const { messages } = get();
       const { authUser } = useAuthStore.getState();
 
@@ -139,7 +129,6 @@ export const useChatStore = create((set, get) => ({
       );
 
       if (optimisticMessageExists) {
-        console.log("Replacing optimistic message with real message");
         set((state) => ({
           messages: state.messages.map((msg) =>
             msg.isOptimistic &&
