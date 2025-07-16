@@ -95,7 +95,7 @@ const Navbar = () => {
               transition={{ delay: 0.5 }}
               className="flex items-center gap-2"
             >
-              <motion.button
+{/*               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all duration-300"
@@ -103,7 +103,7 @@ const Navbar = () => {
                 <Link to="/settings">
                   <Settings className="w-5 h-5 text-white" />
                 </Link>
-              </motion.button>
+              </motion.button> */}
 
               {isSignedIn && user && (
                 <>
