@@ -11,6 +11,7 @@ import { ClerkProvider, useUser, useAuth } from "@clerk/clerk-react";
 import { Loader } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore";
+import Navbar from "./components/Navbar";
 
 const VITE_CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -53,6 +54,7 @@ const AppContent = () => {
 
   return (
     <div data-theme={theme}>
+      <Navbar />
       <Routes>
         <Route
           path="/"
