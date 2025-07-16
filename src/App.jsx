@@ -41,8 +41,10 @@ const AppContent = () => {
 
   if (!isLoaded || isSyncing || (isSignedIn && !authUser)) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex-col gap-5">
+        {isSignedIn && <p className="text-center text-xl">This is a free cloud instance it may take time to connect backend <br/>i am sure that it won't take much time</p>}
         <div className="animate-spin">
+          
           <Loader className="size-10 text-white" />
         </div>
       </div>
