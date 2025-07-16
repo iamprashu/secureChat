@@ -60,7 +60,7 @@ const AppContent = () => {
         <Route
           path="/"
           element={
-            isSignedIn && authUser ? <HomePage /> : <Navigate to="/signup" />
+            isSignedIn && authUser ? <HomePage /> : <Navigate to="/login" />
           }
         />
         <Route
@@ -71,20 +71,20 @@ const AppContent = () => {
           path="/login"
           element={!isSignedIn ? <LoginPage /> : <Navigate to="/" />}
         />
-        <Route
+{/*         <Route
           path="/settings"
           element={
             isSignedIn && authUser ? (
               <SettingsPage />
             ) : (
-              <Navigate to="/signup" />
+              <Navigate to="/login" />
             )
           }
-        />
+        /> */}
         <Route
           path="/profile"
           element={
-            isSignedIn && authUser ? <ProfilePage /> : <Navigate to="/signup" />
+            isSignedIn && authUser ? <ProfilePage /> : <Navigate to="/login" />
           }
         />
       </Routes>
