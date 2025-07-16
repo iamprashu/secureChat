@@ -28,7 +28,6 @@ export const useAuthStore = create((set, get) => ({
           },
         }
       );
-      console.log("Sync response:", res.data);
       set({ authUser: res.data });
       get().connectSocket();
       toast.success("User synced successfully");

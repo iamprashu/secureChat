@@ -34,8 +34,6 @@ const AppContent = () => {
         } catch (error) {
           console.error("Error syncing Clerk user:", error);
         }
-      } else {
-        toast.success("Welcome back!");
       }
     };
 
