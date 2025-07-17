@@ -29,7 +29,7 @@ const AppContent = () => {
 
       if (!authUser && !isSyncing) {
         try {
-          await syncClerkUser(getToken);
+          await syncClerkUser(getToken, user.id);
         } catch (error) {
           console.error("Error syncing Clerk user:", error);
         }
