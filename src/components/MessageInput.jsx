@@ -77,7 +77,7 @@ const MessageInput = () => {
               <X className="w-3 h-3 text-white" />
             </button>
           </div>
-          <span className="text-white/70 text-sm">Image ready to send</span>
+          <span className="text-white/70 text-sm">Image Cannot be send withoud text message.</span>
         </motion.div>
       )}
 
