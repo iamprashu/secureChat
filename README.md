@@ -40,10 +40,20 @@ The frontend React application for SecureChats, a modern end-to-end encrypted ch
    ```
 
 ### Environment Variables
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory with the following variable:
+
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 ```
+
+**Required Environment Variables:**
+- `VITE_CLERK_PUBLISHABLE_KEY` - Your Clerk publishable key from your Clerk dashboard
+
+**Getting Your Clerk Key:**
+1. Sign up at [clerk.com](https://clerk.com)
+2. Create a new application
+3. Copy the publishable key from your Clerk dashboard
+4. Add it to your `.env` file
 
 ## 🏗️ Frontend Architecture
 
