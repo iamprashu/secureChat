@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { encryptMessage, decryptMessage } from "../lib/utils";
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -38,7 +39,12 @@ export const useChatStore = create((set, get) => ({
           Authorization: `Bearer ${token}`,
         },
       });
-      set({ messages: res.data });
+      // Decrypt each message's text
+      const decryptedMessages = res.data.map((msg) => ({
+        ...msg,
+        text: msg.text ? decryptMessage(msg.text) : msg.text,
+      }));
+      set({ messages: decryptedMessages });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -50,11 +56,15 @@ export const useChatStore = create((set, get) => ({
     const { selectedUser } = get();
     const { authUser } = useAuthStore.getState();
 
+    // Encrypt the message text before sending
+    const encryptedText = encryptMessage(messageData.text);
+    const encryptedMessageData = { ...messageData, text: encryptedText };
+
     const optimisticMessage = {
       _id: `temp_${Date.now()}`,
       senderId: authUser._id,
       receiverId: selectedUser._id,
-      text: messageData.text,
+      text: messageData.text, // Show plaintext optimistically
       image: messageData.image,
       createdAt: new Date().toISOString(),
       isOptimistic: true,
@@ -71,7 +81,7 @@ export const useChatStore = create((set, get) => ({
 
       const res = await axiosInstance.post(
         `/messages/send/${selectedUser._id}`,
-        messageData,
+        encryptedMessageData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -79,10 +89,13 @@ export const useChatStore = create((set, get) => ({
         }
       );
 
+      // Decrypt the returned message
+      const decryptedMessage = { ...res.data, text: decryptMessage(res.data.text) };
+
       set((state) => {
         return {
           messages: state.messages.map((msg) =>
-            msg.isOptimistic ? res.data : msg
+            msg.isOptimistic ? decryptedMessage : msg
           ),
         };
       });
@@ -114,6 +127,9 @@ export const useChatStore = create((set, get) => ({
         return;
       }
 
+      // Decrypt the message text
+      const decryptedNewMessage = { ...newMessage, text: newMessage.text ? decryptMessage(newMessage.text) : newMessage.text };
+
       const messageExists = messages.some((msg) => msg._id === newMessage._id);
       if (messageExists) {
         return;
@@ -123,7 +139,7 @@ export const useChatStore = create((set, get) => ({
         (msg) =>
           msg.isOptimistic &&
           msg.senderId === newMessage.senderId &&
-          msg.text === newMessage.text
+          msg.text === decryptedNewMessage.text
       );
 
       if (optimisticMessageExists) {
@@ -131,14 +147,14 @@ export const useChatStore = create((set, get) => ({
           messages: state.messages.map((msg) =>
             msg.isOptimistic &&
             msg.senderId === newMessage.senderId &&
-            msg.text === newMessage.text
-              ? newMessage
+            msg.text === decryptedNewMessage.text
+              ? decryptedNewMessage
               : msg
           ),
         }));
       } else {
         set((state) => ({
-          messages: [...state.messages, newMessage],
+          messages: [...state.messages, decryptedNewMessage],
         }));
       }
     });

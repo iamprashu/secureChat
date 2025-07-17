@@ -3,7 +3,7 @@ import axios from "axios";
 export const axiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "development"
-      ? `http://${window.location.hostname}:3000/api`
+      ? `https://securechat-backend-qgtd.onrender.com/api`
       : "https://securechat-backend-qgtd.onrender.com/api",
 });
 
